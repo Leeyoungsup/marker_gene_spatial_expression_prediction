@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \":*)",
+      "Bash(pip install anndata -q)",
+      "Bash(/home/user/urbandatalab/YSLee/code/marker_gene_spatial_expression_prediction/quality_data_preprocessing.ipynb:*)",
+      "Bash(python3 -c \"import json; json.load\\(open\\(''/home/user/urbandatalab/YSLee/code/marker_gene_spatial_expression_prediction/quality_data_preprocessing.ipynb''\\)\\); print\\(''Valid notebook''\\)\")"
+    ]
+  }
+}
