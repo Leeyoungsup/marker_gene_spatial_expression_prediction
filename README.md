@@ -95,8 +95,33 @@ Total Loss = α × BCE(prop_logits, gt_prop) + β × MSE(pred_int, gt_int) + γ 
 
 ### 2.8 Evaluation Metrics
 
-- **PCC (Pearson Correlation Coefficient)**: Per-gene, Per-sample, Global
-- **MAE (Mean Absolute Error)**: Per-gene
+#### PCC (Pearson Correlation Coefficient)
+
+- 두 변수 간 **선형 상관관계의 강도와 방향**을 측정하는 지표
+- 범위: **[-1, 1]**
+  - 1에 가까울수록 강한 양의 상관 (예측이 GT와 일치하는 방향)
+  - 0에 가까울수록 상관관계 없음
+  - -1에 가까울수록 강한 음의 상관
+- 수식:
+
+$$
+\text{PCC} = \frac{\sum_{i=1}^{n}(x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum_{i=1}^{n}(x_i - \bar{x})^2} \cdot \sqrt{\sum_{i=1}^{n}(y_i - \bar{y})^2}}
+$$
+
+  - $x_i$: 예측값, $y_i$: GT 값, $\bar{x}$, $\bar{y}$: 각각의 평균
+
+- 본 프로젝트에서 3가지 수준으로 측정:
+  - **Per-Gene PCC**: 각 유전자별로 전체 샘플에 대한 PCC 계산 → 유전자별 예측 성능 비교
+  - **Per-Sample PCC**: 각 샘플별로 19개 유전자 벡터에 대한 PCC 계산 → 개별 패치의 예측 품질 평가
+  - **Global PCC**: 전체 예측값과 GT를 flatten하여 단일 PCC 계산 → 모델 전반적 성능 요약
+- MAE와 달리 **스케일에 무관**하게 예측 패턴의 일치도를 평가할 수 있음
+- Loss function에도 PCC 기반 loss (1 − mean PCC)를 포함하여 직접 상관관계를 최적화
+
+#### MAE (Mean Absolute Error)
+
+- 예측값과 GT 간 **절대 오차의 평균**
+- 범위: **[0, ∞)** (낮을수록 좋음)
+- Per-gene 수준으로 계산하여 유전자별 예측 정확도 비교
 
 ---
 
