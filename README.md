@@ -62,9 +62,10 @@ H&E 염색 병리 이미지로부터 marker gene의 spatial expression을 예측
   ```
 - **Head B — Intensity** (발현 강도, range [0, 1])
   ```
-  cp10k = raw_count / total_count × 10000
-  intensity[g] = clip(mean(log1p(cp10k[양성 spot])), 0, 10) / 10
+  intensity[g] = clip(mean(log1p(raw_count[양성 spot])), 0, 10) / 10
   ```
+  - Xenium은 imaging 기반 기술로, 시퀀싱 depth bias가 없어 CPM 정규화 불필요
+  - Raw transcript count에 log1p 변환 후 [0, 10] clip → 10으로 나누어 [0, 1] 범위로 정규화
 
 ### 2.5 Loss Function
 
