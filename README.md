@@ -56,16 +56,21 @@ H&E 염색 병리 이미지로부터 marker gene의 spatial expression을 예측
 
 ### 2.4 Label Generation
 
-- **Head A — Proportion** (양성 비율, range [0, 1])
+- **Head A — Proportion** (spatial coverage, range [0, 1])
+  - 각 패치를 8×8 = 64개 sub-region (bin)으로 분할 (각 bin: 64×64 pixels ≈ 32µm at 20x)
+  - 각 bin에서 해당 gene의 transcript가 1개 이상 존재하면 양성(positive)으로 판정
+  - Proportion = 양성 bin 수 / 전체 bin 수
   ```
-  proportion[g] = (패치 내 gene g 발현 spot 수) / (패치 내 전체 spot 수)
+  proportion[g] = (# bins with gene g transcript ≥ 1) / (N_BINS × N_BINS)
   ```
+  - Visium의 spot 기반 binary proportion과 동일한 프레임워크로, Xenium의 단일 분자 해상도 데이터에 적합
+  - 유전자의 **공간적 분포 범위 (spatial spread)**를 직접 반영
 - **Head B — Intensity** (발현 강도, range [0, 1])
   ```
-  intensity[g] = clip(mean(log1p(raw_count[양성 spot])), 0, 10) / 10
+  intensity[g] = clip(log1p(transcript_count), 0, 10) / 10
   ```
   - Xenium은 imaging 기반 기술로, 시퀀싱 depth bias가 없어 CPM 정규화 불필요
-  - Raw transcript count에 log1p 변환 후 [0, 10] clip → 10으로 나누어 [0, 1] 범위로 정규화
+  - 패치 내 해당 gene의 총 transcript count에 log1p 변환 후 [0, 10] clip → 10으로 나누어 [0, 1] 범위로 정규화
 
 ### 2.5 Loss Function
 
