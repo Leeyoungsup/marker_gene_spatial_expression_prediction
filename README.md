@@ -200,112 +200,125 @@ $$
 
 | Gene | Pres_Acc | PCC_Pres | PCC_Expr | MAE_Expr | PCC_Comb | MAE_Comb | Mean_σ |
 |---|---|---|---|---|---|---|---|
-| EPCAM | | | | | | | |
-| EGFR | | | | | | | |
-| ACTA2 | | | | | | | |
-| PDGFRA | | | | | | | |
-| PDGFRB | | | | | | | |
-| SFRP4 | | | | | | | |
-| PECAM1 | | | | | | | |
-| CD68 | | | | | | | |
-| AIF1 | | | | | | | |
-| FCGR3A | | | | | | | |
-| MRC1 | | | | | | | |
-| CD3E | | | | | | | |
-| CD4 | | | | | | | |
-| CD8A | | | | | | | |
-| TRAC | | | | | | | |
-| CD79A | | | | | | | |
-| MS4A1 | | | | | | | |
-| BANK1 | | | | | | | |
-| TCL1A | | | | | | | |
-| **Mean** | | | | | | | |
+| EPCAM | 0.9335 | 0.7661 | 0.9564 | 0.0512 | 0.9552 | 0.0487 | 0.0592 |
+| EGFR | 0.9338 | 0.8076 | 0.9423 | 0.0412 | 0.9413 | 0.0399 | 0.0488 |
+| ACTA2 | 0.9453 | 0.7106 | 0.9563 | 0.0497 | 0.9565 | 0.0494 | 0.0537 |
+| PDGFRA | 0.9441 | 0.7602 | 0.9428 | 0.0441 | 0.9421 | 0.0437 | 0.0476 |
+| PDGFRB | 0.9429 | 0.7637 | 0.9566 | 0.0408 | 0.9562 | 0.0401 | 0.0451 |
+| SFRP4 | 0.9116 | 0.7384 | 0.9129 | 0.0674 | 0.9121 | 0.0666 | 0.0734 |
+| PECAM1 | 0.9409 | 0.6794 | 0.9493 | 0.0470 | 0.9480 | 0.0468 | 0.0487 |
+| CD68 | 0.9368 | 0.7640 | 0.9572 | 0.0431 | 0.9566 | 0.0420 | 0.0485 |
+| AIF1 | 0.9358 | 0.7071 | 0.9579 | 0.0410 | 0.9569 | 0.0402 | 0.0416 |
+| FCGR3A | 0.9280 | 0.7741 | 0.9477 | 0.0457 | 0.9474 | 0.0437 | 0.0471 |
+| MRC1 | 0.9350 | 0.7654 | 0.9123 | 0.0512 | 0.9119 | 0.0505 | 0.0555 |
+| CD3E | 0.9091 | 0.7281 | 0.9404 | 0.0511 | 0.9409 | 0.0501 | 0.0548 |
+| CD4 | 0.9427 | 0.7340 | 0.9590 | 0.0400 | 0.9585 | 0.0390 | 0.0401 |
+| CD8A | 0.9118 | 0.7800 | 0.9296 | 0.0500 | 0.9292 | 0.0485 | 0.0556 |
+| TRAC | 0.9015 | 0.7032 | 0.9430 | 0.0553 | 0.9438 | 0.0536 | 0.0571 |
+| CD79A | 0.8153 | 0.6827 | 0.9350 | 0.0525 | 0.9345 | 0.0492 | 0.0668 |
+| MS4A1 | 0.8440 | 0.7090 | 0.9429 | 0.0528 | 0.9425 | 0.0503 | 0.0601 |
+| BANK1 | 0.9058 | 0.7446 | 0.9386 | 0.0488 | 0.9387 | 0.0466 | 0.0535 |
+| TCL1A | 0.7787 | 0.6250 | 0.9249 | 0.0473 | 0.9237 | 0.0449 | 0.0494 |
+| **Mean** | **0.9103** | **0.7338** | **0.9424** | **0.0484** | **0.9419** | **0.0470** | **0.0530** |
 
 ### 3.2 Summary
 
-- **Presence Head**: Pres_Acc, PCC_Pres
-- **Expression Head**: PCC_Expr, MAE_Expr
-- **Combined (P × μ)**: PCC_Comb, MAE_Comb
-- **Uncertainty**: Mean σ
+- **Presence Head**: 평균 Accuracy **0.9103**, 평균 PCC **0.7338**
+- **Expression Head**: 평균 PCC **0.9424**, 평균 MAE **0.0484**
+- **Combined (P × μ)**: 평균 PCC **0.9419**, 평균 MAE **0.0470**
+- **Uncertainty**: 평균 σ **0.0530**
+- **Global PCC (flatten)**: Presence **0.7507**, Expression **0.9529**, Combined **0.9527**
 
 ### 3.3 Gene Group Performance
 
 | Gene Group | PCC_Pres | PCC_Comb | Mean_σ | Pres_Acc |
 |---|---|---|---|---|
-| Epithelial (EPCAM, EGFR) | | | | |
-| Stromal (ACTA2, PDGFRA, PDGFRB, SFRP4) | | | | |
-| Endothelial (PECAM1) | | | | |
-| Macrophage (CD68, AIF1, FCGR3A, MRC1) | | | | |
-| T Cell (CD3E, CD4, CD8A, TRAC) | | | | |
-| B Cell (CD79A, MS4A1, BANK1, TCL1A) | | | | |
+| Epithelial (EPCAM, EGFR) | 0.7868 | 0.9482 | 0.0540 | 0.9336 |
+| Stromal (ACTA2, PDGFRA, PDGFRB, SFRP4) | 0.7432 | 0.9417 | 0.0549 | 0.9360 |
+| Endothelial (PECAM1) | 0.6794 | 0.9480 | 0.0487 | 0.9409 |
+| Macrophage (CD68, AIF1, FCGR3A, MRC1) | 0.7527 | 0.9432 | 0.0482 | 0.9339 |
+| T Cell (CD3E, CD4, CD8A, TRAC) | 0.7363 | 0.9431 | 0.0519 | 0.9163 |
+| B Cell (CD79A, MS4A1, BANK1, TCL1A) | 0.6903 | 0.9349 | 0.0574 | 0.8359 |
 
 ### 3.4 Figures
 
 #### Per-Gene PCC & Uncertainty Bar Chart
-<!-- TODO: 이미지 삽입 -->
+![유전자별 PCC & Uncertainty](fig/유전자별%20PCC%20&%20MAE%20막대%20차트.png)
 
 #### Scatter Plot: Combined Pred vs GT (with uncertainty coloring)
-<!-- TODO: 이미지 삽입 -->
+![Scatter Plot Combined](fig/Scatter%20Plot:%20Pred%20vs%20GT(Combined%20=%20P%20×%20μ,%20uncertainty%20color).png)
 
 #### Error Distribution Boxplot (Combined)
-<!-- TODO: 이미지 삽입 -->
+![오차 분포 Boxplot](fig/오차%20분포%20Boxplot.png)
 
 #### Gene Group Performance Summary
-<!-- TODO: 이미지 삽입 -->
+![유전자 그룹별 성능 요약](fig/유전자%20그룹별%20성능%20요약.png)
 
 #### Random Sample Heatmap: GT vs Pred
-<!-- TODO: 이미지 삽입 -->
+![랜덤 샘플 히트맵](fig/랜덤%20샘플%20히트맵:%20GT%20vs%20Pred.png)
 
 #### Distribution Overlay: GT vs Pred (Presence)
-<!-- TODO: 이미지 삽입 -->
+![분포 오버레이 Presence](fig/유전자별%20분포%20오버레이%20(GT%20vs%20Pred)(Presence).png)
 
 #### Distribution Overlay: GT vs Pred (Expression)
-<!-- TODO: 이미지 삽입 -->
+![분포 오버레이 Expression](fig/유전자별%20분포%20오버레이%20(GT%20vs%20Pred)(Expression).png)
 
 #### GT Mean vs Pred Mean (Presence / Expression / Uncertainty)
-<!-- TODO: 이미지 삽입 -->
+![전체 평균 비교](fig/전체%20평균%20비교:%20GT%20Mean%20vs%20Pred%20Mean.png)
 
 #### Individual Sample Comparison (Presence / Expression / Uncertainty)
-<!-- TODO: 이미지 삽입 -->
+![개별 샘플 비교](fig/개별%20샘플%20막대%20차트:%20GT%20vs%20Pred.png)
 
 #### Patch Image + GT vs Pred (5-column)
-<!-- TODO: 이미지 삽입 -->
+![패치 이미지 비교](fig/패치%20이미지%20+%20GT%20vs%20Pred%20비교%20시각화.png)
 
 #### Global PCC Analysis (3×3 subplot)
-<!-- TODO: 이미지 삽입 -->
-
-#### Uncertainty Calibration Curve
-<!-- TODO: 이미지 삽입 -->
+![Global PCC Analysis](fig/Global%20PCC%20Analysis.png)
 
 ---
 
 ## 4. Discussion
 
 ### Presence Head
-- Binary classification으로 gene의 존재 여부를 높은 정확도로 예측
-- Zero-inflated 특성을 명시적으로 모델링하여 발현량 예측의 기반 제공
-- Macrophage/Myeloid 계열 유전자에서 가장 높은 presence 예측 성능
+- 전체 유전자 평균 Accuracy **0.9103**으로 높은 binary classification 성능 확인
+- Endothelial (PECAM1, 0.9409), Stromal 계열 (0.9360)에서 가장 높은 정확도
+- B Cell 계열 (CD79A, MS4A1, BANK1, TCL1A)에서 상대적으로 낮은 정확도 (0.8359)
+  - 특히 TCL1A (0.7787)는 germinal center B cell 특이적으로 형태학적 구분이 어려움
+- PCC 기준 평균 **0.7338** — binary label 특성상 연속 PCC보다는 accuracy가 더 적합한 지표
 
 ### Expression Head (Conditional)
-- Presence=1인 gene에 대한 조건부 발현량 예측
+- 평균 PCC **0.9424**로 매우 높은 조건부 발현량 예측 성능 달성
+- 전체 19개 유전자에서 PCC > 0.91 (최저: SFRP4 0.9129, MRC1 0.9123)
 - SmoothL1 + PCC loss 조합으로 안정적 학습 및 상관 패턴 최적화
-- Zero-inflated 문제를 분리하여 regression 성능 향상
+- Zero-inflated 문제를 Presence head로 분리하여 regression 성능 대폭 향상
+- 평균 MAE **0.0484**로 낮은 절대 오차 유지
 
 ### Combined Prediction (P × μ)
 - Final prediction = sigmoid(presence_logits) × expression_mu
+- 평균 PCC **0.9419**, Global PCC **0.9527**
 - Presence와 Expression의 곱으로 zero-inflated distribution을 자연스럽게 모델링
-- 미발현 gene의 prediction을 0에 가깝게 억제
+- 미발현 gene의 prediction을 0에 가깝게 억제하여 MAE **0.0470** 달성
 
 ### Uncertainty Estimation
-- Heteroscedastic uncertainty를 per-gene 수준으로 학습
-- σ가 높은 패치는 실제로 prediction error가 큰 경향 → calibration 확인
-- 임상 적용 시 신뢰도 기반 의사결정 지원 가능
+- 평균 σ **0.0530** — 전체적으로 낮은 불확실성으로 모델의 높은 신뢰도 시사
+- SFRP4 (σ=0.0734), CD79A (σ=0.0668) 등 실제 예측 난이도가 높은 유전자에서 높은 σ 학습
+- AIF1 (σ=0.0416), CD4 (σ=0.0401) 등 예측 성능이 좋은 유전자에서 낮은 σ
+- σ-Error PCC **0.1865** — uncertainty가 실제 오차와 양의 상관관계를 보이나 calibration 개선 여지 있음
+
+### Gene Group Analysis
+- **Epithelial/Tumor** (PCC_Comb 0.9482): 형태학적으로 뚜렷한 특징 → 높은 예측 성능
+- **Macrophage/Myeloid** (PCC_Comb 0.9432): immune cell infiltration 패턴이 조직 morphology에 잘 반영됨
+- **T Cell** (PCC_Comb 0.9431): CD4 (0.9585)가 가장 높고 CD8A (0.9292)가 가장 낮음
+- **B Cell** (PCC_Comb 0.9349, Pres_Acc 0.8359): 조직 내 산발적 분포로 가장 낮은 성능
+  - TCL1A (Pres_Acc 0.7787)가 전체 유전자 중 가장 낮음
 
 ### Multi-Scale Input 효과
 - 20x (세포 수준) + 5x (조직 구조 수준) dual-encoder 구조 채택
 - 세포 형태와 조직 맥락 정보를 동시에 활용하여 예측 성능 향상
 
 ### 한계 및 향후 과제
+- Uncertainty calibration 개선 필요 (σ-Error PCC 0.1865 → 목표 0.4+)
+- B Cell 특히 TCL1A presence 예측 개선 (형태학적 특징 보강)
 - Transformer 기반 encoder 또는 pathology foundation model 적용 검토
 - Gene pathway 수준 예측으로 확장 가능성
 - Multi-task learning (cell type + gene expression) 통합 학습
