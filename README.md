@@ -1,6 +1,6 @@
 # Marker Gene Spatial Expression Prediction
 
-H&E 염색 병리 이미지로부터 marker gene의 spatial expression을 예측하는 딥러닝 모델
+H&E 염색 병리 이미지로부터 marker gene의 spatial expression을 예측하는 딥러닝 모델 (3-Head: Presence + Expression + Uncertainty)
 
 ---
 
@@ -10,10 +10,12 @@ H&E 염색 병리 이미지로부터 marker gene의 spatial expression을 예측
 - Spatial transcriptomics 데이터는 비용과 실험 제약으로 대규모 확보가 어려움
 - 조직의 morphology는 cell type composition, tumor microenvironment, immune infiltration 등과 강한 상관관계를 가짐
 - H&E 이미지의 형태학적 특징만으로 유전자 발현의 공간적 분포를 추정할 수 있는 가능성 존재
+- 기존 regression 방식은 **zero-inflated 특성**(대부분의 gene이 특정 패치에서 미발현)을 고려하지 못함
 
 ### Objective
 - **H&E patch → gene expression vector** 형태의 regression 모델 학습
-- Spot-level에서 19개 marker gene의 **proportion (양성 비율)** 및 **intensity (발현 강도)** 동시 예측
+- Spot-level에서 19개 marker gene의 **presence (존재 확률)**, **expression (조건부 발현량)**, **uncertainty (예측 불확실성)** 동시 예측
+- **Zero-Inflated Heteroscedastic Regression** 프레임워크 적용
 - Xenium spatial transcriptomics 데이터 기반 학습 및 평가
 
 ### Target Marker Genes (19 genes)
@@ -27,6 +29,28 @@ H&E 염색 병리 이미지로부터 marker gene의 spatial expression을 예측
 | T Cell | CD3E, CD4, CD8A, TRAC |
 | B Cell | CD79A, MS4A1, BANK1, TCL1A |
 
+| Gene | Description |
+|---|---|
+| EPCAM | Epithelial Cell Adhesion Molecule. 상피세포 표면에 발현되는 adhesion molecule로 epithelial cell 간 결합 유지에 관여하며 carcinoma에서 높은 발현을 보이는 대표적인 epithelial marker. |
+| EGFR | Epidermal Growth Factor Receptor. 세포 증식과 분화를 조절하는 receptor tyrosine kinase로 다양한 epithelial tumor에서 overexpression 또는 mutation이 나타나는 성장 신호 전달 수용체. |
+| ACTA2 | Alpha Smooth Muscle Actin. myofibroblast와 smooth muscle cell에서 발현되는 cytoskeletal protein으로 조직 수축 및 ECM remodeling에 관여하며 CAF (cancer-associated fibroblast) marker로 사용됨. |
+| PDGFRA | Platelet-Derived Growth Factor Receptor Alpha. fibroblast proliferation과 migration을 조절하는 receptor tyrosine kinase로 stromal cell 및 mesenchymal lineage marker로 사용됨. |
+| PDGFRB | Platelet-Derived Growth Factor Receptor Beta. pericyte 및 fibroblast에서 발현되는 receptor로 혈관 안정성 유지와 stromal remodeling 및 angiogenesis에 관여. |
+| SFRP4 | Secreted Frizzled-Related Protein 4. Wnt signaling pathway를 조절하는 단백질로 stromal fibroblast 및 CAF에서 발현되며 조직 remodeling과 tumor progression과 관련됨. |
+| PECAM1 | Platelet Endothelial Cell Adhesion Molecule 1 (CD31). 혈관 내피세포 adhesion molecule로 angiogenesis와 leukocyte transmigration에 관여하며 microvessel density 평가에 사용되는 대표적인 endothelial marker. |
+| CD68 | macrophage lysosomal glycoprotein으로 monocyte 및 macrophage에서 발현되며 tumor microenvironment에서 tumor-associated macrophage (TAM) marker로 사용됨. |
+| AIF1 | Allograft Inflammatory Factor 1 (IBA1). macrophage와 microglia activation marker로 inflammatory response 및 immune activation 과정에 관여. |
+| FCGR3A | Fc Gamma Receptor IIIA (CD16). antibody-dependent cellular cytotoxicity (ADCC)에 관여하는 receptor로 macrophage, NK cell 등에서 발현됨. |
+| MRC1 | Mannose Receptor C-Type 1 (CD206). M2 macrophage marker로 pathogen recognition과 endocytosis에 관여하며 anti-inflammatory immune response와 조직 재형성 과정에 관련됨. |
+| CD3E | T-cell receptor complex 구성 단백질로 모든 mature T cell에서 발현되며 T cell lineage identification에 사용되는 대표적인 marker. |
+| CD4 | helper T cell surface glycoprotein으로 MHC class II와 결합하여 antigen recognition 및 immune response 조절에 관여. |
+| CD8A | cytotoxic T lymphocyte marker로 MHC class I antigen recognition에 관여하며 tumor cell killing과 antiviral immune response에서 중요한 역할 수행. |
+| TRAC | T Cell Receptor Alpha Constant region을 코딩하는 유전자로 T cell receptor 구조 형성에 필수적이며 T cell lineage marker로 사용됨. |
+| CD79A | B cell receptor complex 구성 단백질로 B cell activation 및 signaling에 필수적이며 B cell lineage marker로 널리 사용됨. |
+| MS4A1 | CD20 단백질을 코딩하는 유전자로 mature B cell surface marker이며 B-cell lymphoma 치료제 rituximab의 주요 target. |
+| BANK1 | B Cell Scaffold Protein with Ankyrin Repeats 1. B cell receptor signaling pathway를 조절하는 scaffold protein으로 B cell activation 조절에 관여. |
+| TCL1A | T Cell Leukemia/Lymphoma 1A. 초기 B cell 및 germinal center B cell에서 발현되는 단백질로 lymphocyte proliferation과 발달 과정에 관여. |
+
 ---
 
 ## 2. Method
@@ -38,6 +62,8 @@ H&E 염색 병리 이미지로부터 marker gene의 spatial expression을 예측
 - **패치 포함 조건**: 패치 내 ST spot ≥ 1개
 - **Train/Val split**: 80/20 (random_state=42)
 
+<!-- TODO: 데이터 구성 이미지 삽입 -->
+
 ### 2.2 Model Input (Multi-Scale Patch)
 
 | Scale | Resolution | Shape | Description |
@@ -45,44 +71,71 @@ H&E 염색 병리 이미지로부터 marker gene의 spatial expression을 예측
 | High-resolution | 20x | (3, 512, 512) | 세포 morphology 정보 |
 | Context | 5x | (3, 512, 512) | 넓은 조직 구조 정보 (동일 중심, ~4배 넓은 영역) |
 
-### 2.3 Model Architecture
+### 2.3 Model Architecture (3-Head)
 
 - **Encoder**: ConvNeXt-Tiny (`tu-convnext_tiny`, ImageNet pretrained) × 2 (20x, 5x 각각)
 - **Feature Fusion**: 두 encoder의 last-stage feature를 element-wise addition
 - **Pooling**: Global Average Pooling → (B, 768)
-- **Two-Head 구조**:
-  - **Head A (Proportion)**: Linear(768→256) → ReLU → Dropout(0.2) → Linear(256→19) → Sigmoid (inference 시)
-  - **Head B (Intensity)**: Linear(768→256) → ReLU → Dropout(0.2) → Linear(256→19) → Sigmoid
+- **Shared FC**: Linear(768→512) → ReLU → Dropout(0.2)
+- **Three-Head 구조**:
+  - **Head A (Presence)**: Linear(512→256) → ReLU → Linear(256→19) — logits (BCE loss 적용)
+  - **Head B (Expression)**: Linear(512→256) → ReLU → Linear(256→19) → Sigmoid — 조건부 발현량 [0, 1]
+  - **Head C (Uncertainty)**: Linear(512→256) → ReLU → Linear(256→19) — unconstrained (softplus로 σ 변환)
+
+```
+                    ┌─ Head A: Presence logits ─── sigmoid → P(gene expressed)
+                    │
+20x ─→ Encoder ─┐  │
+                 ├─ Element-wise Add ─→ GAP ─→ Shared FC(768→512) ─┼─ Head B: Expression μ ──── sigmoid → E[expr | expressed]
+5x ──→ Encoder ─┘                                                  │
+                    └─ Head C: Log Variance ────── softplus → σ (uncertainty)
+```
+
+**Final Prediction**:
+```
+y_pred = sigmoid(presence_logits) × expression_mu
+uncertainty = softplus(log_var)
+```
+
+<!-- TODO: 모델 아키텍처 다이어그램 이미지 삽입 -->
 
 ### 2.4 Label Generation
 
-- **Head A — Proportion** (spatial coverage, range [0, 1])
-  - 각 패치를 8×8 = 64개 sub-region (bin)으로 분할 (각 bin: 64×64 pixels ≈ 32µm at 20x)
-  - 각 bin에서 해당 gene의 transcript가 1개 이상 존재하면 양성(positive)으로 판정
-  - Proportion = 양성 bin 수 / 전체 bin 수
+- **Head A — Presence** (존재 확률, binary {0, 1})
   ```
-  proportion[g] = (# bins with gene g transcript ≥ 1) / (N_BINS × N_BINS)
+  presence[g] = 1.0  if gene_count[g] > 0  else  0.0
   ```
-  - Visium의 spot 기반 binary proportion과 동일한 프레임워크로, Xenium의 단일 분자 해상도 데이터에 적합
-  - 유전자의 **공간적 분포 범위 (spatial spread)**를 직접 반영
-- **Head B — Intensity** (발현 강도, range [0, 1])
-  ```
-  intensity[g] = clip(log1p(transcript_count), 0, 10) / 10
-  ```
-  - Xenium은 imaging 기반 기술로, 시퀀싱 depth bias가 없어 CPM 정규화 불필요
-  - 패치 내 해당 gene의 총 transcript count에 log1p 변환 후 [0, 10] clip → 10으로 나누어 [0, 1] 범위로 정규화
+  - 해당 패치 내 gene g의 transcript가 1개 이상 존재하면 1, 아니면 0
 
-### 2.5 Loss Function
+- **Head B — Expression** (조건부 발현량, range [0, 1])
+  ```
+  expression[g] = clip(log1p(transcript_count), 0, 10) / 10
+  ```
+  - Xenium은 imaging 기반 기술로 CPM 정규화 불필요
+  - 학습 시 presence=1인 gene에 대해서만 loss 계산 (masked)
+
+- **Head C — Uncertainty** (label 불필요)
+  - 별도의 GT label 없이, loss를 통해 자동 학습
+  - 모델이 σ = softplus(log_var)를 출력하며, |prediction error|와의 calibration으로 학습
+
+### 2.5 Loss Function (Decoupled 4-Term Loss)
 
 ```
-Total Loss = α × BCE(prop_logits, gt_prop) + β × MSE(pred_int, gt_int) + γ × PCC_loss
+Total Loss = α × BCE(presence_logits, gt_presence)
+           + β × masked_SmoothL1(expression_mu, gt_expression)
+           + δ × (1 − mean_PCC(expression_mu, gt_expression))
+           + γ × SmoothL1(σ, |expression_error|.detach())
 ```
 
-| Component | Function | Weight |
-|---|---|---|
-| Proportion Loss | BCEWithLogitsLoss | α = 1.0 |
-| Intensity Loss | MSELoss | β = 1.0 |
-| PCC Loss | 1 − mean(Pearson Correlation) | γ = 0.5 |
+| Component | Function | Weight | Description |
+|---|---|---|---|
+| Presence Loss | BCEWithLogitsLoss | α = 1.0 | gene 존재 여부 binary classification |
+| Expression Loss | masked SmoothL1Loss | β = 1.0 | presence=1인 gene만 발현량 regression |
+| PCC Loss | 1 − mean(Pearson Correlation) | δ = 0.5 | 유전자 간 상관 패턴 최적화 |
+| Uncertainty Loss | SmoothL1Loss(σ, \|error\|) | γ = 0.5 | σ가 실제 오차를 추정하도록 calibration |
+
+- 모든 loss term ≥ 0 (학습 안정성 보장)
+- σ = softplus(raw_sigma), |error|은 `.detach()`로 gradient 차단
 
 ### 2.6 Training Configuration
 
@@ -129,114 +182,130 @@ $$
 - 범위: **[0, ∞)** (낮을수록 좋음)
 - Per-gene 수준으로 계산하여 유전자별 예측 정확도 비교
 
+#### Presence Accuracy
+
+- Presence head의 binary classification 정확도 (threshold = 0.5)
+- 각 gene별 정확도 및 전체 평균으로 측정
+
+#### Uncertainty Calibration
+
+- 학습된 σ가 실제 prediction error (|pred − GT|)와 얼마나 일치하는지 평가
+- σ vs |error| scatter plot 및 binned calibration curve로 시각화
+
 ---
 
 ## 3. Result
 
 ### 3.1 Per-Gene Performance
 
-| Gene | PCC (Proportion) | MAE (Proportion) | PCC (Intensity) | MAE (Intensity) |
-|---|---|---|---|---|
-| EPCAM | 0.9176 | 0.0956 | 0.7883 | 0.0686 |
-| EGFR | 0.9610 | 0.0709 | 0.6874 | 0.0577 |
-| ACTA2 | 0.9322 | 0.0755 | 0.7611 | 0.0772 |
-| PDGFRA | 0.9499 | 0.0766 | 0.6849 | 0.0717 |
-| PDGFRB | 0.9535 | 0.0676 | 0.7715 | 0.0601 |
-| SFRP4 | 0.9304 | 0.0968 | 0.7506 | 0.0815 |
-| PECAM1 | 0.9463 | 0.0708 | 0.7162 | 0.0720 |
-| CD68 | 0.9565 | 0.0612 | 0.7651 | 0.0647 |
-| AIF1 | 0.9462 | 0.0690 | 0.6925 | 0.0701 |
-| FCGR3A | 0.9625 | 0.0634 | 0.7326 | 0.0640 |
-| MRC1 | 0.9287 | 0.1010 | 0.7308 | 0.0621 |
-| CD3E | 0.9047 | 0.1177 | 0.6625 | 0.0781 |
-| CD4 | 0.9449 | 0.0702 | 0.7148 | 0.0658 |
-| CD8A | 0.9305 | 0.1045 | 0.6537 | 0.0667 |
-| TRAC | 0.9097 | 0.1084 | 0.7196 | 0.0777 |
-| CD79A | 0.8821 | 0.1129 | 0.7616 | 0.0671 |
-| MS4A1 | 0.8751 | 0.1204 | 0.7848 | 0.0626 |
-| BANK1 | 0.8814 | 0.1254 | 0.7460 | 0.0618 |
-| TCL1A | 0.8403 | 0.1211 | 0.7410 | 0.0616 |
-| **Mean** | **0.9239** | **0.0910** | **0.7297** | **0.0679** |
+| Gene | Pres_Acc | PCC_Pres | PCC_Expr | MAE_Expr | PCC_Comb | MAE_Comb | Mean_σ |
+|---|---|---|---|---|---|---|---|
+| EPCAM | | | | | | | |
+| EGFR | | | | | | | |
+| ACTA2 | | | | | | | |
+| PDGFRA | | | | | | | |
+| PDGFRB | | | | | | | |
+| SFRP4 | | | | | | | |
+| PECAM1 | | | | | | | |
+| CD68 | | | | | | | |
+| AIF1 | | | | | | | |
+| FCGR3A | | | | | | | |
+| MRC1 | | | | | | | |
+| CD3E | | | | | | | |
+| CD4 | | | | | | | |
+| CD8A | | | | | | | |
+| TRAC | | | | | | | |
+| CD79A | | | | | | | |
+| MS4A1 | | | | | | | |
+| BANK1 | | | | | | | |
+| TCL1A | | | | | | | |
+| **Mean** | | | | | | | |
 
 ### 3.2 Summary
 
-- **Proportion Head**: 평균 PCC **0.9239**, 평균 MAE **0.0910**
-- **Intensity Head**: 평균 PCC **0.7297**, 평균 MAE **0.0679**
-- 전체 19개 유전자에서 Proportion PCC > 0.84, Intensity PCC > 0.65 달성
+- **Presence Head**: Pres_Acc, PCC_Pres
+- **Expression Head**: PCC_Expr, MAE_Expr
+- **Combined (P × μ)**: PCC_Comb, MAE_Comb
+- **Uncertainty**: Mean σ
 
 ### 3.3 Gene Group Performance
 
-| Gene Group | Proportion PCC | Intensity PCC |
-|---|---|---|
-| Epithelial (EPCAM, EGFR) | ~0.94 | ~0.74 |
-| Stromal (ACTA2, PDGFRA, PDGFRB, SFRP4) | ~0.94 | ~0.74 |
-| Endothelial (PECAM1) | 0.95 | 0.72 |
-| Macrophage (CD68, AIF1, FCGR3A, MRC1) | ~0.95 | ~0.73 |
-| T Cell (CD3E, CD4, CD8A, TRAC) | ~0.92 | ~0.69 |
-| B Cell (CD79A, MS4A1, BANK1, TCL1A) | ~0.87 | ~0.76 |
+| Gene Group | PCC_Pres | PCC_Comb | Mean_σ | Pres_Acc |
+|---|---|---|---|---|
+| Epithelial (EPCAM, EGFR) | | | | |
+| Stromal (ACTA2, PDGFRA, PDGFRB, SFRP4) | | | | |
+| Endothelial (PECAM1) | | | | |
+| Macrophage (CD68, AIF1, FCGR3A, MRC1) | | | | |
+| T Cell (CD3E, CD4, CD8A, TRAC) | | | | |
+| B Cell (CD79A, MS4A1, BANK1, TCL1A) | | | | |
 
 ### 3.4 Figures
 
-#### Per-Gene PCC & MAE Bar Chart
-![유전자별 PCC & MAE 막대 차트](fig/유전자별%20PCC%20&%20MAE%20막대%20차트.png)
+#### Per-Gene PCC & Uncertainty Bar Chart
+<!-- TODO: 이미지 삽입 -->
 
-#### Scatter Plot: Pred vs GT (Proportion)
-![Scatter Plot Proportion](fig/Scatter%20Plot:%20Pred%20vs%20GT(proportion).png)
+#### Scatter Plot: Combined Pred vs GT (with uncertainty coloring)
+<!-- TODO: 이미지 삽입 -->
 
-#### Scatter Plot: Pred vs GT (Intensity)
-![Scatter Plot Intensity](fig/Scatter%20Plot:%20Pred%20vs%20GT(Intensity).png)
-
-#### Error Distribution Boxplot
-![오차 분포 Boxplot](fig/오차%20분포%20Boxplot.png)
+#### Error Distribution Boxplot (Combined)
+<!-- TODO: 이미지 삽입 -->
 
 #### Gene Group Performance Summary
-![유전자 그룹별 성능 요약](fig/유전자%20그룹별%20성능%20요약.png)
+<!-- TODO: 이미지 삽입 -->
 
 #### Random Sample Heatmap: GT vs Pred
-![랜덤 샘플 히트맵](fig/랜덤%20샘플%20히트맵:%20GT%20vs%20Pred.png)
+<!-- TODO: 이미지 삽입 -->
 
-#### Distribution Overlay: GT vs Pred (Proportion)
-![분포 오버레이 Proportion](fig/유전자별%20분포%20오버레이%20(GT%20vs%20Pred)(Proportion).png)
+#### Distribution Overlay: GT vs Pred (Presence)
+<!-- TODO: 이미지 삽입 -->
 
-#### Distribution Overlay: GT vs Pred (Intensity)
-![분포 오버레이 Intensity](fig/유전자별%20분포%20오버레이%20(GT%20vs%20Pred)(Intensity).png)
+#### Distribution Overlay: GT vs Pred (Expression)
+<!-- TODO: 이미지 삽입 -->
 
-#### GT Mean vs Pred Mean
-![전체 평균 비교](fig/전체%20평균%20비교:%20GT%20Mean%20vs%20Pred%20Mean.png)
+#### GT Mean vs Pred Mean (Presence / Expression / Uncertainty)
+<!-- TODO: 이미지 삽입 -->
 
-#### Individual Sample Comparison
-![개별 샘플 막대 차트](fig/개별%20샘플%20막대%20차트:%20GT%20vs%20Pred.png)
+#### Individual Sample Comparison (Presence / Expression / Uncertainty)
+<!-- TODO: 이미지 삽입 -->
 
-#### Patch Image + GT vs Pred
-![패치 이미지 비교](fig/패치%20이미지%20+%20GT%20vs%20Pred%20비교%20시각화.png)
+#### Patch Image + GT vs Pred (5-column)
+<!-- TODO: 이미지 삽입 -->
 
-#### Global PCC Analysis
-![Global PCC Analysis](fig/Global%20PCC%20Analysis.png)
+#### Global PCC Analysis (3×3 subplot)
+<!-- TODO: 이미지 삽입 -->
+
+#### Uncertainty Calibration Curve
+<!-- TODO: 이미지 삽입 -->
 
 ---
 
 ## 4. Discussion
 
-### Proportion Head
-- 전체 유전자 평균 PCC 0.92로 높은 예측 성능 확인
-- Macrophage/Myeloid 계열 (CD68, FCGR3A) 유전자에서 가장 높은 PCC (>0.96) 달성
-- B Cell 계열 (CD79A, MS4A1, BANK1, TCL1A)에서 상대적으로 낮은 PCC (~0.87)
-  - B cell은 조직 내 분포가 산발적이며 형태학적 특징이 덜 두드러짐
-- MAE는 전체적으로 0.06~0.13 범위로 안정적
+### Presence Head
+- Binary classification으로 gene의 존재 여부를 높은 정확도로 예측
+- Zero-inflated 특성을 명시적으로 모델링하여 발현량 예측의 기반 제공
+- Macrophage/Myeloid 계열 유전자에서 가장 높은 presence 예측 성능
 
-### Intensity Head
-- 평균 PCC 0.73으로 Proportion 대비 낮은 성능
-- 발현 강도는 형태학적 특징만으로 설명하기 어려운 요소가 포함됨
-  - transcriptional regulation, epigenetic state 등 비형태학적 요인 존재
-- B Cell 계열에서 Intensity PCC가 Proportion 대비 상대적으로 양호 (~0.76)
-- T Cell 계열 (CD3E, CD8A)에서 Intensity 예측이 가장 어려움 (PCC ~0.65)
+### Expression Head (Conditional)
+- Presence=1인 gene에 대한 조건부 발현량 예측
+- SmoothL1 + PCC loss 조합으로 안정적 학습 및 상관 패턴 최적화
+- Zero-inflated 문제를 분리하여 regression 성능 향상
+
+### Combined Prediction (P × μ)
+- Final prediction = sigmoid(presence_logits) × expression_mu
+- Presence와 Expression의 곱으로 zero-inflated distribution을 자연스럽게 모델링
+- 미발현 gene의 prediction을 0에 가깝게 억제
+
+### Uncertainty Estimation
+- Heteroscedastic uncertainty를 per-gene 수준으로 학습
+- σ가 높은 패치는 실제로 prediction error가 큰 경향 → calibration 확인
+- 임상 적용 시 신뢰도 기반 의사결정 지원 가능
 
 ### Multi-Scale Input 효과
 - 20x (세포 수준) + 5x (조직 구조 수준) dual-encoder 구조 채택
 - 세포 형태와 조직 맥락 정보를 동시에 활용하여 예측 성능 향상
 
 ### 한계 및 향후 과제
-- Intensity 예측 성능 개선 필요 (PCC 0.73 → 목표 0.80+)
 - Transformer 기반 encoder 또는 pathology foundation model 적용 검토
 - Gene pathway 수준 예측으로 확장 가능성
 - Multi-task learning (cell type + gene expression) 통합 학습
@@ -252,7 +321,8 @@ marker_gene_spatial_expression_prediction/
 │   └── CLAUDE.md
 ├── fig/                              # 평가 결과 시각화
 ├── xenium_data_preprocessing.ipynb   # Xenium 데이터 전처리
-├── xenium_train_2head.ipynb          # Two-Head 모델 학습
+├── xenium_train_2head.ipynb          # Two-Head 모델 학습 (legacy)
+├── xenium_train_3head.ipynb          # Three-Head 모델 학습 (current)
 ├── xenium_test.ipynb                 # 모델 평가 및 시각화
 ├── xenium_all_genes.csv              # Xenium 전체 유전자 목록
 └── README.md
@@ -267,3 +337,5 @@ marker_gene_spatial_expression_prediction/
 | Encoder | ConvNeXt-Tiny (timm via segmentation_models_pytorch) |
 | Environment | CUDA GPU, Jupyter Notebook |
 | Key Libraries | numpy, pandas, torch, torchvision, segmentation_models_pytorch, scikit-learn, scipy, matplotlib, PIL, OpenCV |
+
+<!-- TODO: 아키텍처 전체 다이어그램 이미지 삽입 -->
